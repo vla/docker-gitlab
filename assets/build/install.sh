@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e
 
-GITLAB_CLONE_URL=https://github.com/gitlabhq/gitlabhq.git
+#更改国内地址
+GITLAB_CLONE_URL=https://git.oschina.net/johnwu/gitlab-zh.git
 GITLAB_SHELL_URL=https://gitlab.com/gitlab-org/gitlab-shell/repository/archive.tar.gz
 GITLAB_WORKHORSE_URL=https://gitlab.com/gitlab-org/gitlab-workhorse/repository/archive.tar.gz
 
@@ -14,7 +15,7 @@ BUILD_DEPENDENCIES="gcc g++ make patch pkg-config cmake paxctl \
   libxml2-dev libxslt-dev libcurl4-openssl-dev libicu-dev"
 
 ## Execute a command as GITLAB_USER
-exec_as_git() {
+exec_as_git() { 
   if [[ $(whoami) == ${GITLAB_USER} ]]; then
     $@
   else
