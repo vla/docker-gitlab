@@ -1,19 +1,16 @@
 #!/bin/bash
 set -e
-
 #更改国内地址
 GITLAB_CLONE_URL=https://git.oschina.net/johnwu/gitlab-zh.git
 GITLAB_SHELL_URL=https://gitlab.com/gitlab-org/gitlab-shell/repository/archive.tar.gz
 GITLAB_WORKHORSE_URL=https://gitlab.com/gitlab-org/gitlab-workhorse/repository/archive.tar.gz
-
 GEM_CACHE_DIR="${GITLAB_BUILD_DIR}/cache"
-
 BUILD_DEPENDENCIES="gcc g++ make patch pkg-config cmake paxctl \
-  libc6-dev ruby2.1-dev \
+  libc6-dev ruby-dev \
   libmysqlclient-dev libpq-dev zlib1g-dev libyaml-dev libssl-dev \
   libgdbm-dev libreadline-dev libncurses5-dev libffi-dev \
   libxml2-dev libxslt-dev libcurl4-openssl-dev libicu-dev"
-
+  
 ## Execute a command as GITLAB_USER
 exec_as_git() { 
   if [[ $(whoami) == ${GITLAB_USER} ]]; then

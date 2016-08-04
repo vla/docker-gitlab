@@ -1,5 +1,8 @@
-FROM sameersbn/ubuntu:14.04.20160727
+FROM johnwu/ubuntu:latest
 MAINTAINER sameer@damagehead.com
+
+#国内构建默认
+ARG BUILD_IN_CHINA=true 
 
 #修改国内镜像
 ENV GITLAB_VERSION=8.8.7-zh \
@@ -19,26 +22,31 @@ ENV GITLAB_INSTALL_DIR="${GITLAB_HOME}/gitlab" \
     GITLAB_BUILD_DIR="${GITLAB_CACHE_DIR}/build" \
     GITLAB_RUNTIME_DIR="${GITLAB_CACHE_DIR}/runtime"
 
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv E1DD270288B4E6030699E45FA1715D88E1DF1F24 \
- && echo "deb http://ppa.launchpad.net/git-core/ppa/ubuntu trusty main" >> /etc/apt/sources.list \
- && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 80F70E11F0F0D5F10CB20E62F5DA5F09C3173AA6 \
- && echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" >> /etc/apt/sources.list \
- && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 8B3981E7A6852F782CC4951600A6F0A3C300EE8C \
- && echo "deb http://ppa.launchpad.net/nginx/stable/ubuntu trusty main" >> /etc/apt/sources.list \
- && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
- && echo 'deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main' > /etc/apt/sources.list.d/pgdg.list \
- && apt-get update \
- && DEBIAN_FRONTEND=noninteractive apt-get install -y supervisor logrotate locales curl \
+COPY china_mirrors /etc/apt/sources.list
+
+RUN apt-get update \
+ &&  DEBIAN_FRONTEND=noninteractive apt-get install -y supervisor logrotate locales curl \
       nginx openssh-server mysql-client postgresql-client redis-tools \
-      git-core ruby2.1 python2.7 python-docutils nodejs gettext-base \
-      libmysqlclient18 libpq5 zlib1g libyaml-0-2 libssl1.0.0 \
+      git ruby python2.7 python-docutils nodejs gettext-base \
+      libmysqlclient-dev libpq5 zlib1g libyaml-0-2 libssl1.0.0 \
       libgdbm3 libreadline6 libncurses5 libffi6 \
-      libxml2 libxslt1.1 libcurl3 libicu52 \
+      libxml2 libxslt1.1 libcurl3 libicu55 \
  && update-locale LANG=C.UTF-8 LC_MESSAGES=POSIX \
  && locale-gen en_US.UTF-8 \
- && DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales \
- && gem install --no-document bundler \
- && rm -rf /var/lib/apt/lists/*
+ && DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales
+
+
+RUN if [ "${BUILD_IN_CHINA}" == "true" ]; \
+    then \
+        gem sources --remove https://rubygems.org/ \
+     && gem sources --remove http://rubygems.org/ \
+     && gem sources -a https://ruby.taobao.org/ \
+     && gem install --no-document bundler \
+     && bundle config mirror.https://rubygems.org https://ruby.taobao.org; \
+    else \
+        gem install --no-document bundler ; \
+    fi
+RUN rm -rf /var/lib/apt/lists/*   
 
 COPY assets/build/ ${GITLAB_BUILD_DIR}/
 RUN bash ${GITLAB_BUILD_DIR}/install.sh
