@@ -22,7 +22,7 @@ services:
 
   gitlab:
     restart: always
-    image: johnwu/gitlab:8.8.7-zh
+    image: registry.cn-hangzhou.aliyuncs.com/vla/gitlab-zh:8.8.7-zh-dev
     depends_on:
     - redis
     - postgresql

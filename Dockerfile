@@ -1,10 +1,6 @@
 FROM johnwu/ubuntu:latest
 MAINTAINER sameer@damagehead.com
 
-#国内构建默认
-ARG BUILD_IN_CHINA=false 
-
-#修改国内镜像
 ENV GITLAB_VERSION=8.8.7-zh \
     GOLANG_VERSION=1.5.3 \
     GITLAB_SHELL_VERSION=3.2.1 \
@@ -36,18 +32,6 @@ RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales \
  && gem install --no-document bundler \
  && rm -rf /var/lib/apt/lists/* 
-
-
-# RUN if [ "${BUILD_IN_CHINA}" == "true" ]; \
-#     then \
-#         gem sources --remove https://rubygems.org/ \
-#      && gem sources --add https://gems.ruby-china.org/ \
-#      && gem install --no-document bundler \
-#      && bundle config mirror.https://rubygems.org https://gems.ruby-china.org; \
-#     else \
-#         gem install --no-document bundler ; \
-#     fi
-# RUN rm -rf /var/lib/apt/lists/*   
 
 COPY assets/build/ ${GITLAB_BUILD_DIR}/
 RUN bash ${GITLAB_BUILD_DIR}/install.sh
