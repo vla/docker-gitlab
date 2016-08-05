@@ -2,7 +2,7 @@ FROM johnwu/ubuntu:latest
 MAINTAINER sameer@damagehead.com
 
 #国内构建默认
-ARG BUILD_IN_CHINA=true 
+ARG BUILD_IN_CHINA=false 
 
 #修改国内镜像
 ENV GITLAB_VERSION=8.8.7-zh \
@@ -33,20 +33,21 @@ RUN apt-get update \
       libxml2 libxslt1.1 libcurl3 libicu55 \
  && update-locale LANG=C.UTF-8 LC_MESSAGES=POSIX \
  && locale-gen en_US.UTF-8 \
- && DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales
+ && DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales \
+ && gem install --no-document bundler \
+ && rm -rf /var/lib/apt/lists/* 
 
 
-RUN if [ "${BUILD_IN_CHINA}" == "true" ]; \
-    then \
-        gem sources --remove https://rubygems.org/ \
-     && gem sources --remove http://rubygems.org/ \
-     && gem sources -a https://ruby.taobao.org/ \
-     && gem install --no-document bundler \
-     && bundle config mirror.https://rubygems.org https://ruby.taobao.org; \
-    else \
-        gem install --no-document bundler ; \
-    fi
-RUN rm -rf /var/lib/apt/lists/*   
+# RUN if [ "${BUILD_IN_CHINA}" == "true" ]; \
+#     then \
+#         gem sources --remove https://rubygems.org/ \
+#      && gem sources --add https://gems.ruby-china.org/ \
+#      && gem install --no-document bundler \
+#      && bundle config mirror.https://rubygems.org https://gems.ruby-china.org; \
+#     else \
+#         gem install --no-document bundler ; \
+#     fi
+# RUN rm -rf /var/lib/apt/lists/*   
 
 COPY assets/build/ ${GITLAB_BUILD_DIR}/
 RUN bash ${GITLAB_BUILD_DIR}/install.sh
