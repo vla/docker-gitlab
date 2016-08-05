@@ -1,9 +1,11 @@
 #!/bin/bash
 set -e
 
-GITLAB_CLONE_URL=https://github.com/vla/gitlab-zh.git
+GITLAB_CLONE_URL=https://github.com/gitlabhq/gitlabhq.git
 GITLAB_SHELL_URL=https://gitlab.com/gitlab-org/gitlab-shell/repository/archive.tar.gz
 GITLAB_WORKHORSE_URL=https://gitlab.com/gitlab-org/gitlab-workhorse/repository/archive.tar.gz
+
+GITLAB_CLONE_URL=https://github.com/vla/gitlab-zh.git
 
 GEM_CACHE_DIR="${GITLAB_BUILD_DIR}/cache"
 
