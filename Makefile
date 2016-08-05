@@ -15,7 +15,7 @@ build:
 
 release: build
 	@docker build --tag=johnwu/gitlab:$(shell cat VERSION) .
-	
+
 quickstart:
 	@echo "Starting postgresql container..."
 	@docker run --name=gitlab-postgresql -d \
@@ -30,7 +30,7 @@ quickstart:
 		--link=gitlab-postgresql:postgresql --link=gitlab-redis:redisio \
 		--publish=10022:22 --publish=10080:80 \
 		--env='GITLAB_PORT=10080' --env='GITLAB_SSH_PORT=10022' \
-		johnwu/gitlab:latest
+		sameersbn/gitlab:latest
 	@echo "Please be patient. This could take a while..."
 	@echo "GitLab will be available at http://localhost:10080"
 	@echo "Type 'make logs' for the logs"

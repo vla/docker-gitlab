@@ -2,43 +2,9 @@
 
 This file only reflects the changes that are made in this image. Please refer to the upstream GitLab [CHANGELOG](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/CHANGELOG) for the list of changes in GitLab.
 
-**8.10.2-1**
-- Fix `OAUTH_GOOGLE_RESTRICT_DOMAIN` 
-
-**8.10.2**
-- gitlab: upgrade to CE v8.10.2
-- Improve `OAUTH_GOOGLE_RESTRICT_DOMAIN` for multiple restricted domains
-
-**8.10.1**
-- gitlab: upgrade to CE v8.10.1
-
-**8.10.0**
-- gitlab: upgrade to CE v8.10.0
-
-**8.9.6**
-- gitlab: upgrade to CE v8.9.6
-
-**8.9.5**
-- gitlab: upgrade to CE v8.9.5
-
-**8.9.4**
-- gitlab: upgrade to CE v8.9.4
-
-**8.9.3**
-- gitlab: upgrade to CE v8.9.3
-
-**8.9.2**
-- gitlab: upgrade to CE v8.9.2
-
-**8.9.1**
-- gitlab: upgrade to CE v8.9.1
-
-**8.9.0**
-- gitlab: upgrade to CE v8.9.0
-
 **8.8.5-1**
 - added GitLab Container Registry support
-- added `SSL_CIPHERS` option to change ciphers of the nginx
+- added `SSL_CIPHERS` option to change chipers of the nginx
 
 **8.8.5**
 - gitlab: upgrade to CE v8.8.5

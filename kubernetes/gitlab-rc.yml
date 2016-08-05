@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: gitlab
-        image: johnwu/gitlab:8.8.7-zh
+        image: sameersbn/gitlab:8.8.5
         env:
         - name: TZ
           value: Asia/Kolkata

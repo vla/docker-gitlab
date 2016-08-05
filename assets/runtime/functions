@@ -443,20 +443,11 @@ gitlab_configure_oauth_google() {
   if [[ -n ${OAUTH_GOOGLE_API_KEY} && -n ${OAUTH_GOOGLE_APP_SECRET} ]]; then
     echo "Configuring gitlab::oauth::google..."
     OAUTH_ENABLED=${OAUTH_ENABLED:-true}
-    if [[ -n ${OAUTH_GOOGLE_RESTRICT_DOMAIN} ]]; then
-      update_template ${GITLAB_CONFIG} \
-        OAUTH_GOOGLE_API_KEY \
-        OAUTH_GOOGLE_APP_SECRET \
-        OAUTH_GOOGLE_RESTRICT_DOMAIN \
-        OAUTH_GOOGLE_APPROVAL_PROMPT
-    else
-      exec_as_git sed -i "/ hd\: \[{{OAUTH_GOOGLE_RESTRICT_DOMAIN}}\]/d" ${GITLAB_CONFIG}
-      exec_as_git sed -i "s/approval_prompt: '{{OAUTH_GOOGLE_APPROVAL_PROMPT}}',/approval_prompt: '{{OAUTH_GOOGLE_APPROVAL_PROMPT}}' } }/" ${GITLAB_CONFIG}
-      update_template ${GITLAB_CONFIG} \
-        OAUTH_GOOGLE_API_KEY \
-        OAUTH_GOOGLE_APP_SECRET \
-        OAUTH_GOOGLE_APPROVAL_PROMPT
-    fi
+    update_template ${GITLAB_CONFIG} \
+      OAUTH_GOOGLE_API_KEY \
+      OAUTH_GOOGLE_APP_SECRET \
+      OAUTH_GOOGLE_RESTRICT_DOMAIN \
+      OAUTH_GOOGLE_APPROVAL_PROMPT
   else
     exec_as_git sed -i "/name: 'google_oauth2'/,/{{OAUTH_GOOGLE_RESTRICT_DOMAIN}}/d" ${GITLAB_CONFIG}
   fi
@@ -826,24 +817,26 @@ gitlab_configure_project_features() {
 
 gitlab_configure_registry(){
   echo "Configuring gitlab::registry..."
-
-  if [[ ${GITLAB_REGISTRY_PORT} == 443 ]]; then
-    # Sets GITLAB_REGISTRY_PORT empty for the scope of this function.
-    # This helps us to add an empty key to `.gitlab-ci.yml`.
-    # Because 443 is the default https port it doesn't need to be included in docker push/pull commands
-    # and shouldn't be displayed on the gitlab ui.
-    # Example: `docker pull registry:443/some/image` is the same as `docker pull registry/some/image`
-    local GITLAB_REGISTRY_PORT=""
+  if [[ $GITLAB_REGISTRY_PORT != 443 ]]; then
+    update_template ${GITLAB_CONFIG} \
+      GITLAB_REGISTRY_ENABLED \
+      GITLAB_REGISTRY_DIR \
+      GITLAB_REGISTRY_HOST \
+      GITLAB_REGISTRY_PORT \
+      GITLAB_REGISTRY_API_URL \
+      GITLAB_REGISTRY_KEY_PATH \
+      GITLAB_REGISTRY_ISSUER
+  else
+    GITLAB_REGISTRY_PORT="" # Sets Registry Port to empty to set the key empty in the  .gitlab-ci.yml
+    update_template ${GITLAB_CONFIG} \
+      GITLAB_REGISTRY_ENABLED \
+      GITLAB_REGISTRY_DIR \
+      GITLAB_REGISTRY_HOST \
+      GITLAB_REGISTRY_PORT \
+      GITLAB_REGISTRY_API_URL \
+      GITLAB_REGISTRY_KEY_PATH \
+      GITLAB_REGISTRY_ISSUER
   fi
-
-  update_template ${GITLAB_CONFIG} \
-    GITLAB_REGISTRY_ENABLED \
-    GITLAB_REGISTRY_DIR \
-    GITLAB_REGISTRY_HOST \
-    GITLAB_REGISTRY_PORT \
-    GITLAB_REGISTRY_API_URL \
-    GITLAB_REGISTRY_KEY_PATH \
-    GITLAB_REGISTRY_ISSUER
 }
 
 nginx_configure_gitlab_ssl() {
@@ -918,7 +911,7 @@ nginx_configure_gitlab_registry() {
     echo "Configuring nginx::gitlab-registry..."
     update_template ${GITLAB_REGISTRY_NGINX_CONFIG} \
       GITLAB_LOG_DIR \
-      GITLAB_REGISTRY_PORT \
+      NGINX_REGISTRY_PROXY_PORT \
       GITLAB_REGISTRY_HOST \
       GITLAB_REGISTRY_API_URL \
       SSL_REGISTRY_KEY_PATH \
@@ -1182,7 +1175,7 @@ install_configuration_templates() {
       install_template root: nginx/gitlab-registry ${GITLAB_REGISTRY_NGINX_CONFIG}
     else
       echo "SSL key and certificates for Registry were not found"
-      echo "Assuming that the Registry is running behind a HTTPS enabled load balancer."
+      echo "Assuming that the Registry is running behind an enabled load balancer"
     fi
   fi
 }
@@ -1242,6 +1235,9 @@ configure_gitlab_shell() {
     GITLAB_RELATIVE_URL_ROOT \
     GITLAB_HOME \
     GITLAB_LOG_DIR \
+    GITLAB_DATA_DIR \
+    GITLAB_BACKUP_DIR \
+    GITLAB_REPOS_DIR \
     GITLAB_SHELL_INSTALL_DIR \
     SSL_SELF_SIGNED \
     REDIS_HOST \
@@ -1251,11 +1247,7 @@ configure_gitlab_shell() {
 
 configure_nginx() {
   echo "Configuring nginx..."
-  sed -i \
-  -e "s|worker_processes .*|worker_processes ${NGINX_WORKERS};|" \
-  -e "s|# server_names_hash_bucket_size 64;|server_names_hash_bucket_size ${NGINX_SERVER_NAMES_HASH_BUCKET_SIZE};|" \
-  /etc/nginx/nginx.conf
-
+  sed -i "s|worker_processes .*|worker_processes ${NGINX_WORKERS};|" /etc/nginx/nginx.conf
   nginx_configure_gitlab
   nginx_configure_gitlab_ci
   nginx_configure_gitlab_registry
